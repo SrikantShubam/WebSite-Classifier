@@ -1,10 +1,10 @@
-# 📚 README for WebSite-Classifier 🌐
+# 📚 WebSite-Classifier 🌐
 
 Welcome to the WebSite-Classifier repository! This is a machine learning project that can classify websites into different categories based on their content. This repository contains the code and necessary files to build and train a website classifier model.
 
 # 📋 Table of Contents
 
-- [Installation](#installation)
+- Installation
 - Usage
 - Dataset
 - Model Training
