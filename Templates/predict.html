@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>The results</title>
+    <meta name="description" content="Discover the top three categories that a website belongs to with our website classification tool. Our page returns accurate results, helping you to identify the key categories that a website falls into. Get started today and streamline your website analysis with ease.">
+    <link rel="icon" href="{{ url_for('static', filename='/logo.png') }} "type="image/icon type">
+	<style>
+        @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Lobster+Two&family=Poppins:ital,wght@0,400;0,600;1,100&family=Roboto:wght@100&display=swap');
+        body{
+            background-color: #000000;
+        }
+		.container {
+			position: relative;
+			height: 500px;
+			
+		}
+
+		.bubble1 {
+			position: absolute;
+			top: 0%;
+			left: 30%;
+			transform: translate(-50%, -50%);
+			border-radius: 50%;
+            z-index: 1;
+			/* background-color: #ffffff;
+             */
+             box-sizing: border-box;
+            border: 3px solid #FFFFFF;
+            transform: scale(0.7);
+			width: {{ scores[0] }}rem;
+			height: {{ scores[0] }}rem;
+            
+		}
+
+		.bubble2 {
+            animation: orbit 8s linear infinite;
+            position: absolute;
+			top: 60%;
+            border-radius: 50%;
+			left: 25%;
+            z-index:2;
+            /* background-color:#81817E; */
+            border: 4px solid #81817E;
+            box-sizing: border-box;
+            width: {{ scores[1]+5 }}rem;
+			height: {{ scores[1] +5}}rem;
+           
+		}
+
+		.bubble3 {
+            animation: orbit 8s linear infinite;
+            position: absolute;
+			top: 60%;
+			left: 65%;
+            z-index:3;
+            border: 4px solid #4C4C4C;
+            box-sizing: border-box;
+            width: {{ scores[2] +5}}rem;
+			height: {{ scores[2] +5}}rem;
+            border-radius: 50%;
+          
+		}
+        .bubble2:hover,.bubble3:hover{
+            transform: scale(1.05);
+        }
+        .bubble1:hover{
+            transform: scale(.65);
+        }
+        h1,h2,h3{
+        font-family: 'Poppins', sans-serif;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        color: #ffffff;
+     }
+     h1{
+        font-size: 3rem;
+     }
+     .orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(150px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(150px) rotate(-360deg);
+  }
+}
+	</style>
+</head>
+<body>
+	<div class="container">
+       
+        <!-- <h1 style="color: #ffffff;">{{ scores }}</h1> -->
+		<div class="bubble1">
+            <h1 style="color: #ffffff;">{{ data.index[0] }}</h1>
+
+        </div>
+		 <div class="bubble2">
+            <h2 style="color: #ffffff;">{{ data.index[1] }}</h2>
+         </div>
+		<div class="bubble3">
+            <h3 style="color: #ffffff;">{{ data.index[2] }}</h3>
+        </div>
+	</div>
+    <script>
+        const bubble1 = document.getElementById('bubble1');
+const orbitElements = document.querySelectorAll('.orbit');
+
+function updatePositions() {
+  const bubble1Rect = bubble1.getBoundingClientRect();
+  orbitElements.forEach((orbitElement, index) => {
+    const angle = (index + 1) * 120;
+    const x = bubble1Rect.left + bubble1Rect.width / 2 + Math.cos(angle * Math.PI / 180) * 150;
+    const y = bubble1Rect.top + bubble1Rect.height / 2 + Math.sin(angle * Math.PI / 180) * 150;
+    orbitElement.style.left = `${x}px`;
+    orbitElement.style.top = `${y}px`;
+  });
+}
+
+updatePositions();
+window.addEventListener('resize', updatePositions);
+    </script>
+</body>
+</html>
