@@ -4,7 +4,7 @@ Welcome to the WebSite-Classifier repository! This is a machine learning project
 
 # 📋 Table of Contents
 
-- Installation(#Installtion)
+- [#Installtion](Installation)
 - Usage
 - Dataset
 - Model Training
@@ -30,7 +30,7 @@ python classify.py <url>
 
 # 📊 Dataset
 
-The dataset used for training this model is not included in this repository. However, you can find the dataset [https://www.kaggle.com/datasets/hetulmehta/website-classification](here)
+The dataset used for training this model is not included in this repository. However, you can find the dataset (https://www.kaggle.com/datasets/hetulmehta/website-classification)[here]
 
 # 🤖 Model Training
 
