@@ -101,7 +101,9 @@ def submit():
             token = str(token.lemma_.lower().strip())
             tokens.append(token)
         return " ".join(tokens) 
-    df=pd.read_csv("data.csv")
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(dir_path, 'data.csv')
+    df=pd.read_csv(file_path)
     df['category_id'] = df['Category'].factorize()[0]
     category_id_df = df[['Category', 'category_id']].drop_duplicates()
 
