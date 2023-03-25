@@ -1,5 +1,13 @@
 from flask import Flask, render_template, request, send_file
+import re
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 from bs4 import BeautifulSoup
 import bs4 as bs4
 from urllib.parse import urlparse
@@ -9,7 +17,7 @@ import pandas as pd
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
-import pickle
+# import pickle
 from sklearn.model_selection import train_test_split
 # import spacy as sp
 from collections import Counter
@@ -20,8 +28,8 @@ import joblib
 from collections import Counter
 # sp.prefer_gpu()
 from sklearn.svm import LinearSVC
-import en_core_web_sm
-nlp = en_core_web_sm.load()
+# import en_core_web_sm
+# nlp = en_core_web_sm.load()
 
 app = Flask(__name__)
 @app.route("/")
@@ -92,15 +100,33 @@ def submit():
         '''
         Clean the document. Remove pronouns, stopwords, lemmatize the words and lowercase them
         '''
-        doc = nlp(doc)
-        tokens = []
-        exclusion_list = ["nan"]
-        for token in doc:
-            if token.is_stop or token.is_punct or token.text.isnumeric() or (token.text.isalnum()==False) or token.text in exclusion_list :
-                continue
-            token = str(token.lemma_.lower().strip())
-            tokens.append(token)
-        return " ".join(tokens) 
+        text = re.sub(r'[^\x00-\x7F]+', ' ', text)
+        
+        # Tokenize the text
+        tokens = nltk.word_tokenize(text)
+        
+        # Remove stopwords and lemmatize the words
+        stop_words = set(stopwords.words('english'))
+        lemmatizer = WordNetLemmatizer()
+        
+        clean_tokens = []
+        for token in tokens:
+            if token.lower() not in stop_words and token.isalpha():
+                clean_token = lemmatizer.lemmatize(token.lower())
+                clean_tokens.append(clean_token)
+    
+    # Join the cleaned tokens back into a string
+            # clean_text = ' '.join(clean_tokens)
+        # doc = nlp(doc)
+        # tokens = []
+        # exclusion_list = ["nan"]
+        # for token in doc:
+        #     if token.is_stop or token.is_punct or token.text.isnumeric() or (token.text.isalnum()==False) or token.text in exclusion_list :
+        #         continue
+        #     token = str(token.lemma_.lower().strip())
+        #     tokens.append(token)
+        #     print(token)#-----------------------------------------------------------------
+        return " ".join(clean_tokens) 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(dir_path, 'data.csv')
     df=pd.read_csv(file_path)
@@ -140,6 +166,7 @@ def submit():
 # try:
     web=dict(scrapTool.visit_url(site))
     text=(clean_text(web['website_text']))
+    print(text)#-----------------------------------------------------------------------
     #    print(text,type(text))
     t=tfidf.transform([text]).toarray()
     # print("fitted vectorizer",t,type(t))
@@ -163,12 +190,12 @@ def submit():
 
     df = pd.DataFrame(data, index=top_3_indices, columns=['Percentage'], dtype=float)
     df.index.name = 'Category'
-    print(type(df))
-    print(df)
+    # print(type(df))
+    # print(df)
 
 
     return render_template('predict.html',data=df,scores=scores) 
     # return render_template('predict.html')
 
 if __name__ == "__main__":
-    app.run(debug=False, use_reloader=True,host='0.0.0.0')
+    app.run(debug=True, use_reloader=True,host='0.0.0.0')
