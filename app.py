@@ -11,14 +11,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pickle
 from sklearn.model_selection import train_test_split
-import spacy as sp
+# import spacy as sp
 from collections import Counter
-sp.prefer_gpu()
+# sp.prefer_gpu()
 from sklearn.calibration import CalibratedClassifierCV
-
-import spacy as sp
+import joblib
+# import spacy as sp
 from collections import Counter
-sp.prefer_gpu()
+# sp.prefer_gpu()
 from sklearn.svm import LinearSVC
 import en_core_web_sm
 nlp = en_core_web_sm.load()
@@ -125,26 +125,23 @@ def submit():
     X = df['cleaned_website_text'] # Collection of text
     y = df['Category'] # Target or the labels we want to predict
     X_train, X_test, y_train, y_test = train_test_split(X, df['category_id'], 
-                                                    test_size=0.25,
+                                                    test_size=0.20,
                                                     random_state = 0)
 
     tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5,
                             ngram_range=(1, 2), 
                             stop_words='english')
+    
+    tfidf.fit_transform(X_train).toarray()
+    
 
-    fitted_vectorizer = tfidf.fit(X_train)
-    # print(fitted_vectorizer)
-    tfidf_vectorizer_vectors = fitted_vectorizer.transform(X_train)
-
-    m = LinearSVC().fit(tfidf_vectorizer_vectors, y_train)
-    m1=CalibratedClassifierCV(base_estimator=m,
-                                            cv="prefit").fit(tfidf_vectorizer_vectors, y_train)
+    m1= joblib.load('linear_svc_model.joblib')
     scrapTool = ScrapTool()
 # try:
     web=dict(scrapTool.visit_url(site))
     text=(clean_text(web['website_text']))
     #    print(text,type(text))
-    t=fitted_vectorizer.transform([text])
+    t=tfidf.transform([text]).toarray()
     # print("fitted vectorizer",t,type(t))
     # print(id_to_category[m1.predict(t)[0]])
     data=pd.DataFrame(m1.predict_proba(t)*100,columns=df['Category'].unique())
