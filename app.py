@@ -9,30 +9,27 @@ import pandas as pd
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
-import pickle
+
 from sklearn.model_selection import train_test_split
-# import spacy as sp
-from collections import Counter
+import spacy as sp
+import psutil
+
+
 # sp.prefer_gpu()
 from sklearn.calibration import CalibratedClassifierCV
 import joblib
-# import spacy as sp
-from collections import Counter
+
+
 # sp.prefer_gpu()
 from sklearn.svm import LinearSVC
 import en_core_web_sm
 nlp = en_core_web_sm.load()
 
-app = Flask(__name__)
-@app.route("/")
-def hello_world():
-
-    return render_template('index.html')
-
-@app.route('/submit', methods=['POST'])
-def submit():
-    site=request.form['site']
-    class ScrapTool:
+m1= joblib.load('linear_svc_model.joblib')
+tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5,
+                        ngram_range=(1, 2), 
+                        stop_words='english')
+class ScrapTool:
 
         def visit_url(self, website_url):
             '''
@@ -88,86 +85,80 @@ def submit():
                     and len(stripped_tag)>0:
                     result.append(stripped_tag)
             return ' '.join(result)
-    def clean_text(doc):
-        '''
-        Clean the document. Remove pronouns, stopwords, lemmatize the words and lowercase them
-        '''
-        doc = nlp(doc)
-        tokens = []
-        exclusion_list = ["nan"]
-        for token in doc:
-            if token.is_stop or token.is_punct or token.text.isnumeric() or (token.text.isalnum()==False) or token.text in exclusion_list :
-                continue
-            token = str(token.lemma_.lower().strip())
-            tokens.append(token)
-        return " ".join(tokens) 
+scrapTool = ScrapTool()
+
+
+app = Flask(__name__)
+def clean_text(doc):
+            '''
+            Clean the document. Remove pronouns, stopwords, lemmatize the words and lowercase them
+            '''
+            doc = nlp(doc)
+            tokens = []
+            exclusion_list = ["nan"]
+            for token in doc:
+                if token.is_stop or token.is_punct or token.text.isnumeric() or (token.text.isalnum()==False) or token.text in exclusion_list :
+                    continue
+                token = str(token.lemma_.lower().strip())
+                tokens.append(token)
+            return " ".join(tokens) 
+@app.route("/")
+def hello_world():
+
+    return render_template('index.html')
+
+
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    
+   
+    site=request.form['site']
+   
+    
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(dir_path, 'data.csv')
-    df=pd.read_csv(file_path)
+    df=pd.read_csv(file_path,low_memory=True)
     df['category_id'] = df['Category'].factorize()[0]
-    category_id_df = df[['Category', 'category_id']].drop_duplicates()
+  
+   
+    X_train, _ = train_test_split(df['cleaned_website_text'], test_size=0.20, random_state = 0)
 
 
-    # Dictionaries for future use
-    category_to_id = dict(category_id_df.values)
-    id_to_category = dict(category_id_df[['category_id', 'Category']].values)
-
-    tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5,
-                        ngram_range=(1, 2), 
-                        stop_words='english')
-
-    # We transform each cleaned_text into a vector
-    features = tfidf.fit_transform(df.cleaned_website_text).toarray()
-
-    labels = df.category_id
-
-
-    X = df['cleaned_website_text'] # Collection of text
-    y = df['Category'] # Target or the labels we want to predict
-    X_train, X_test, y_train, y_test = train_test_split(X, df['category_id'], 
-                                                    test_size=0.20,
-                                                    random_state = 0)
-
-    tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5,
-                            ngram_range=(1, 2), 
-                            stop_words='english')
+    
     
     tfidf.fit_transform(X_train).toarray()
     
 
-    m1= joblib.load('linear_svc_model.joblib')
-    scrapTool = ScrapTool()
-# try:
+   
+    
+
     web=dict(scrapTool.visit_url(site))
+    
     text=(clean_text(web['website_text']))
-    #    print(text,type(text))
+   
     t=tfidf.transform([text]).toarray()
-    # print("fitted vectorizer",t,type(t))
-    # print(id_to_category[m1.predict(t)[0]])
-    data=pd.DataFrame(m1.predict_proba(t)*100,columns=df['Category'].unique())
-    data=data.T
+   
+    data=pd.DataFrame(m1.predict_proba(t)*100,columns=df['Category'].unique()).T
+    
     data.columns=['Probability']
     data.index.name='Category'
-    a=data.sort_values(['Probability'],ascending=False)
-    a['Probability']=a['Probability'].apply(lambda x:round(x,2))
-    scores=[]
-    for i in a["Probability"]:
-            scores.append(i)
-    scores=scores[0:3]
-
-    top_3_indices = a["Probability"].nlargest(3).index
-    # print(top_3_indices)
-    # top_3_values = a["Probability"].iloc[top_3_indices]
-    # print(scores)
-    data = {'Percentage': scores}
-
-    df = pd.DataFrame(data, index=top_3_indices, columns=['Percentage'], dtype=float)
-    df.index.name = 'Category'
-    print(type(df))
-    print(df)
+    data=data.sort_values('Probability', ascending=False)
+    print(data,type(data["Probability"]))
+   
 
 
-    return render_template('predict.html',data=df,scores=scores) 
+
+
+   
+  
+
+    
+    process = psutil.Process()
+    memory_info = process.memory_info()
+    print(f"Memory usage: {memory_info.rss} bytes")
+
+    return render_template('predict.html',data=data) 
     # return render_template('predict.html')
 
 if __name__ == "__main__":

@@ -4,128 +4,112 @@
 	<title>The results</title>
     <meta name="description" content="Discover the top three categories that a website belongs to with our website classification tool. Our page returns accurate results, helping you to identify the key categories that a website falls into. Get started today and streamline your website analysis with ease.">
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }} "type="image/icon type">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 	<style>
         @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Lobster+Two&family=Poppins:ital,wght@0,400;0,600;1,100&family=Roboto:wght@100&display=swap');
         body{
-            background-color: #000000;
+            background-color: #ffffff!important;
         }
-		.container {
-			position: relative;
-			height: 500px;
-			
-		}
+	
 
-		.bubble1 {
-			position: absolute;
-			top: 0%;
-			left: 30%;
-			transform: translate(-50%, -50%);
-			border-radius: 50%;
-            z-index: 1;
-			/* background-color: #ffffff;
-             */
-             box-sizing: border-box;
-            border: 3px solid #FFFFFF;
-            transform: scale(0.7);
-			width: {{ scores[0] }}rem;
-			height: {{ scores[0] }}rem;
-            
-		}
+		
 
-		.bubble2 {
-            animation: orbit 8s linear infinite;
-            position: absolute;
-			top: 60%;
-            border-radius: 50%;
-			left: 25%;
-            z-index:2;
-            /* background-color:#81817E; */
-            border: 4px solid #81817E;
-            box-sizing: border-box;
-            width: {{ scores[1]+5 }}rem;
-			height: {{ scores[1] +5}}rem;
-           
-		}
 
-		.bubble3 {
-            animation: orbit 8s linear infinite;
-            position: absolute;
-			top: 60%;
-			left: 65%;
-            z-index:3;
-            border: 4px solid #4C4C4C;
-            box-sizing: border-box;
-            width: {{ scores[2] +5}}rem;
-			height: {{ scores[2] +5}}rem;
-            border-radius: 50%;
-          
-		}
-        .bubble2:hover,.bubble3:hover{
-            transform: scale(1.05);
-        }
-        .bubble1:hover{
-            transform: scale(.65);
-        }
-        h1,h2,h3{
-        font-family: 'Poppins', sans-serif;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        margin: 0;
-        color: #ffffff;
-     }
-     h1{
-        font-size: 3rem;
-     }
-     .orbit {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-@keyframes orbit {
-  from {
-    transform: rotate(0deg) translateX(150px) rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg) translateX(150px) rotate(-360deg);
-  }
-}
+	
+  
+  
+
 	</style>
 </head>
 <body>
-	<div class="container">
-       
-        <!-- <h1 style="color: #ffffff;">{{ scores }}</h1> -->
-		<div class="bubble1">
-            <h1 style="color: #ffffff;">{{ data.index[0] }}</h1>
 
-        </div>
-		 <div class="bubble2">
-            <h2 style="color: #ffffff;">{{ data.index[1] }}</h2>
-         </div>
-		<div class="bubble3">
-            <h3 style="color: #ffffff;">{{ data.index[2] }}</h3>
-        </div>
-	</div>
-    <script>
-        const bubble1 = document.getElementById('bubble1');
-const orbitElements = document.querySelectorAll('.orbit');
-
-function updatePositions() {
-  const bubble1Rect = bubble1.getBoundingClientRect();
-  orbitElements.forEach((orbitElement, index) => {
-    const angle = (index + 1) * 120;
-    const x = bubble1Rect.left + bubble1Rect.width / 2 + Math.cos(angle * Math.PI / 180) * 150;
-    const y = bubble1Rect.top + bubble1Rect.height / 2 + Math.sin(angle * Math.PI / 180) * 150;
-    orbitElement.style.left = `${x}px`;
-    orbitElement.style.top = `${y}px`;
-  });
+    
+	<style>
+        html,
+body,
+.intro {
+  height: 100%;
 }
 
-updatePositions();
-window.addEventListener('resize', updatePositions);
-    </script>
+table td,
+table th {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+thead th,
+tbody th {
+  color: #fff;
+}
+
+tbody td {
+  font-weight: 500;
+  color: rgba(255,255,255,.65);
+}
+
+.card {
+  border-radius: .5rem;
+}
+td,th{
+    font-family: 'Poppins';
+}
+h1{
+    font-family: 'Lobster';
+    color: white;
+    margin-bottom: 2rem;
+}
+
+    </style>
+  
+    <div class="bg-image h-100" style="background-image: url('https://mdbootstrap.com/img/Photos/new-templates/tables/img2.jpg');">
+        <div class="mask d-flex align-items-center h-100" style="background-color: rgba(0,0,0,.25);">
+          <div class="container">
+            <div class="row justify-content-center">
+                <h1 class="text-center">Classfication report : <b style="font-family: 'Poppins';">{{ request.form['site'] }}</b></h1>
+              <div class="col-12">
+                <div class="card bg-dark shadow-2-strong">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                    
+                      <table class="table table-dark table-borderless mb-0">
+                        <thead>
+                          <tr>
+                            <th scope="col">Ranking</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Value</th>
+                     
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- <tr>
+                            <th scope="row">Tiger Nixon</th>
+                            <td>System Architect</td>
+                            <td>tnixon12@example.com</td>
+
+                          </tr> -->
+                          {% set count = namespace(value=1) %}
+                          {% for index, row in data.iterrows() %}
+                        
+                          <tr>
+                              <td>{{ count.value }}</td>
+                              <td>{{ index }}</td>
+                            
+                            <td> {{ row["Probability"].round(2) }}</td>
+                            {% set count.value = count.value + 1 %}
+                          </tr>
+                          {% endfor  %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+ 
 </body>
 </html>
