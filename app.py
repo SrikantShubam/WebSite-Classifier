@@ -162,4 +162,5 @@ def submit():
     # return render_template('predict.html')
 
 if __name__ == "__main__":
-    app.run(debug=False, use_reloader=True,host='0.0.0.0')
+    # app.run(debug=False, use_reloader=True,host='0.0.0.0')
+    app.run(port=5000)
