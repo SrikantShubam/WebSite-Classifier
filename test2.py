@@ -28,7 +28,8 @@ nlp = en_core_web_sm.load()
 
 
 
-import re
+import requests
+website=input("Enter URL: ")
 class ScrapTool:
 
     def visit_url(self, website_url):
@@ -124,7 +125,7 @@ X = df['cleaned_website_text'] # Collection of text
 y = df['Category'] # Target or the labels we want to predict
 
 X_train, X_test, y_train, y_test = train_test_split(X, df['category_id'], 
-                                                    test_size=0.25,
+                                                    test_size=0.20,
                                                     random_state = 0)
 
 tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5,
@@ -140,7 +141,7 @@ m1=CalibratedClassifierCV(base_estimator=m,
                                         cv="prefit").fit(tfidf_vectorizer_vectors, y_train)
 
 
-website='https://leetcode.com/problemset/all/'
+
 scrapTool = ScrapTool()
 # try:
 web=dict(scrapTool.visit_url(website))
